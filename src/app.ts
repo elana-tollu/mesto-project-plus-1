@@ -10,14 +10,13 @@ mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
 user.find({})
   .then((users) => console.log(users));
 
-
-
-
-
-
-
 app.get('/', (req, res) => {
   res.send('Hello, Darling!');
+});
+
+app.get('/users', (req, res) => {
+  user.find({})
+    .then((users) => res.send(users));
 });
 
 app.listen(PORT, () => {
