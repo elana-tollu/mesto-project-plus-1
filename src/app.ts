@@ -2,14 +2,29 @@ import express from 'express';
 import mongoose from 'mongoose';
 
 import user from './models/user';
+import card from './models/card';
+
+declare global{
+  namespace Express {
+      interface Request {
+          user: { _id: string }
+      }
+  }
+}
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(express.json());
 
-mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
+app.use((req, res, next) => {
+  req.user = {
+    _id: '63683b3bc09c57e6b17e6d45',
+  };
+  next();
+});
 
+mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
 
 app.get('/', (req, res) => {
   res.send('Hello, Darling!');
@@ -32,6 +47,22 @@ app.get('/users/:userId', (req, res) => {
     .then((theUser) => res.json(theUser));
 });
 
+app.get('/cards', (req, res) => {
+  card.find({})
+    .then((cards) => res.send(cards));
+});
+
+app.post('/cards', (req, res) => {
+  const newCard = {
+    ...req.body,
+    owner: req.user._id,
+  };
+  card.create(newCard)
+    .then((createdCard) => {
+      res.json(createdCard);
+    });
+});
+
 console.info('This is info');
 console.warn('This is warning');
 console.error('This is error');
@@ -39,4 +70,3 @@ console.error('This is error');
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
