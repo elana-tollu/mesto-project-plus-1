@@ -63,6 +63,17 @@ app.post('/cards', (req, res) => {
     });
 });
 
+app.delete('/cards/:cardId', (req, res) => {
+  card.deleteOne({ _id: req.params.cardId })
+    .then((deleteResult) => {
+      if (deleteResult.deletedCount === 1) {
+        res.status(200).end();
+      } else {
+        res.status(404).end();
+      }
+    });
+});
+
 console.info('This is info');
 console.warn('This is warning');
 console.error('This is error');
