@@ -50,12 +50,16 @@ app.get('/users/:userId', (req, res, next) => {
     .catch(next);
 });
 
-app.patch('/users/me', (req, res) => {
-  res.status(501).end();
+app.patch('/users/me', (req, res, next) => {
+  user.findByIdAndUpdate(req.user._id, req.body, { new: true })
+    .then((theUser) => res.json(theUser))
+    .catch(next);
 });
 
-app.patch('/users/me/avatar', (req, res) => {
-  res.status(501).end();
+app.patch('/users/me/avatar', (req, res, next) => {
+  user.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar}, { new: true })
+    .then((theUser) => res.json(theUser))
+    .catch(next);
 });
 
 app.get('/cards', (req, res, next) => {
