@@ -80,12 +80,16 @@ app.post('/cards', (req, res, next) => {
     .catch(next);
 });
 
-app.put('/cards/:cardId/likes', (req, res) => {
-  res.status(501).end();
+app.put('/cards/:cardId/likes', (req, res, next) => {
+  card.findByIdAndUpdate(req.params.cardId, {$addToSet: {likes: req.user._id}}, { new: true })
+  .then((theCard) => res.json(theCard))
+  .catch(next);
 });
 
-app.delete('/cards/:cardId/likes', (req, res) => {
-  res.status(501).end();
+app.delete('/cards/:cardId/likes', (req, res, next) => {
+  card.findByIdAndUpdate(req.params.cardId, {$pull: {likes: req.user._id}}, { new: true })
+  .then((theCard) => res.json(theCard))
+  .catch(next);
 });
 
 app.delete('/cards/:cardId', (req, res, next) => {
