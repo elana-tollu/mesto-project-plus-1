@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 import user from './models/user';
@@ -30,21 +30,24 @@ app.get('/', (req, res) => {
   res.send('Hello, Darling!');
 });
 
-app.get('/users', (req, res) => {
+app.get('/users', (req, res, next) => {
   user.find({})
-    .then((users) => res.send(users));
+    .then((users) => res.send(users))
+    .catch(next);
 });
 
-app.post('/users', (req, res) => {
+app.post('/users', (req, res, next) => {
   user.create(req.body)
     .then((createdUser) => {
       res.json(createdUser);
-    });
+    })
+    .catch(next);
 });
 
-app.get('/users/:userId', (req, res) => {
+app.get('/users/:userId', (req, res, next) => {
   user.findById(req.params.userId)
-    .then((theUser) => res.json(theUser));
+    .then((theUser) => res.json(theUser))
+    .catch(next);
 });
 
 app.patch('/users/me', (req, res) => {
@@ -55,12 +58,13 @@ app.patch('/users/me/avatar', (req, res) => {
   res.status(501).end();
 });
 
-app.get('/cards', (req, res) => {
+app.get('/cards', (req, res, next) => {
   card.find({})
-    .then((cards) => res.send(cards));
+    .then((cards) => res.send(cards))
+    .catch(next);
 });
 
-app.post('/cards', (req, res) => {
+app.post('/cards', (req, res, next) => {
   const newCard = {
     ...req.body,
     owner: req.user._id,
@@ -68,7 +72,8 @@ app.post('/cards', (req, res) => {
   card.create(newCard)
     .then((createdCard) => {
       res.json(createdCard);
-    });
+    })
+    .catch(next);
 });
 
 app.put('/cards/:cardId/likes', (req, res) => {
@@ -79,7 +84,7 @@ app.delete('/cards/:cardId/likes', (req, res) => {
   res.status(501).end();
 });
 
-app.delete('/cards/:cardId', (req, res) => {
+app.delete('/cards/:cardId', (req, res, next) => {
   card.deleteOne({ _id: req.params.cardId })
     .then((deleteResult) => {
       if (deleteResult.deletedCount === 1) {
@@ -87,14 +92,15 @@ app.delete('/cards/:cardId', (req, res) => {
       } else {
         res.status(404).end();
       }
-    });
+    })
+    .catch(next);
 });
 
-console.info('This is info');
-console.warn('This is warning');
-console.error('This is error');
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).send({ message: 'Error' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
