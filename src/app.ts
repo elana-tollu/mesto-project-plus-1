@@ -47,6 +47,14 @@ app.get('/users/:userId', (req, res) => {
     .then((theUser) => res.json(theUser));
 });
 
+app.patch('/users/me', (req, res) => {
+  res.status(501).end();
+});
+
+app.patch('/users/me/avatar', (req, res) => {
+  res.status(501).end();
+});
+
 app.get('/cards', (req, res) => {
   card.find({})
     .then((cards) => res.send(cards));
@@ -61,6 +69,14 @@ app.post('/cards', (req, res) => {
     .then((createdCard) => {
       res.json(createdCard);
     });
+});
+
+app.put('/cards/:cardId/likes', (req, res) => {
+  res.status(501).end();
+});
+
+app.delete('/cards/:cardId/likes', (req, res) => {
+  res.status(501).end();
 });
 
 app.delete('/cards/:cardId', (req, res) => {
@@ -81,3 +97,4 @@ console.error('This is error');
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
+
