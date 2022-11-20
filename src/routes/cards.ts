@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import {
-  addCardsLike, addCardsOwner, deleteCard, deleteCardsLike, getAllCards,
+  addCardsLike, addCard, deleteCard, deleteCardsLike, getAllCards,
 } from '../controllers/cards';
 
 const router = Router();
@@ -14,6 +14,6 @@ router.delete('/:cardId', deleteCard);
 
 router.get('/', getAllCards);
 
-router.post('/', addCardsOwner);
+router.post('/', addCard);
 
 export default router;

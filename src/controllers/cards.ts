@@ -1,4 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
+import mongoose from 'mongoose';
+import { badRequestError, notFoundError } from '../errors';
 
 import card from '../models/card';
 
@@ -9,7 +11,7 @@ export function getAllCards(req: Request, res: Response, next: NextFunction) {
     .catch(next);
 }
 
-export function addCardsOwner(req: Request, res: Response, next: NextFunction) {
+export function addCard(req: Request, res: Response, next: NextFunction) {
   const newCard = {
     ...req.body,
     owner: req.user._id,
@@ -18,18 +20,33 @@ export function addCardsOwner(req: Request, res: Response, next: NextFunction) {
     .then((createdCard) => {
       res.json(createdCard);
     })
-    .catch(next);
+    .catch((err: Error) => {
+      const error = err instanceof mongoose.Error.ValidationError
+        ? badRequestError(err.message)
+        : err;
+      next(error);
+    });
 }
 
 export function addCardsLike(req: Request, res: Response, next: NextFunction) {
   card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
-    .then((theCard) => res.json(theCard))
+    .then((theCard) => {
+      if (theCard === null) {
+        throw notFoundError('Карточка не найдена');
+      }
+      res.json(theCard);
+    })
     .catch(next);
 }
 
 export function deleteCardsLike(req: Request, res: Response, next: NextFunction) {
   card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .then((theCard) => res.json(theCard))
+    .then((theCard) => {
+      if (theCard === null) {
+        throw notFoundError('Карточка не найдена');
+      }
+      res.json(theCard);
+    })
     .catch(next);
 }
 
@@ -39,7 +56,7 @@ export function deleteCard(req: Request, res: Response, next: NextFunction) {
       if (deleteResult.deletedCount === 1) {
         res.status(200).end();
       } else {
-        res.status(404).end();
+        throw notFoundError('Карточка не найдена');
       }
     })
     .catch(next);
