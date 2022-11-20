@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-
+import mongoose from 'mongoose';
+import { badRequestError, notFoundError } from '../errors';
 import user from '../models/user';
 
 export function getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -13,23 +14,43 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     .then((createdUser) => {
       res.json(createdUser);
     })
-    .catch(next);
+    .catch((err: Error) => {
+      const error = err instanceof mongoose.Error.ValidationError
+        ? badRequestError(err.message)
+        : err;
+      next(error);
+    });
 }
 
 export function getUserById(req: Request, res: Response, next: NextFunction) {
   user.findById(req.params.userId)
-    .then((theUser) => res.json(theUser))
+    .then((theUser) => {
+      if (theUser === null) {
+        throw notFoundError('Пользователь не найден');
+      }
+      res.json(theUser);
+    })
     .catch(next);
 }
 
 export function editUser(req: Request, res: Response, next: NextFunction) {
   user.findByIdAndUpdate(req.user._id, req.body, { new: true })
-    .then((theUser) => res.json(theUser))
+    .then((theUser) => {
+      if (theUser === null) {
+        throw notFoundError('Пользователь не найден');
+      }
+      res.json(theUser);
+    })
     .catch(next);
 }
 
 export function editAvatar(req: Request, res: Response, next: NextFunction) {
   user.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true })
-    .then((theUser) => res.json(theUser))
+    .then((theUser) => {
+      if (theUser === null) {
+        throw notFoundError('Пользователь не найден');
+      }
+      res.json(theUser);
+    })
     .catch(next);
 }
