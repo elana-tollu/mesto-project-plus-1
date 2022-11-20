@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
+import { AppError, internalServerError } from './errors';
 
 declare global{
   namespace Express {
@@ -36,7 +37,11 @@ app.use('/users', usersRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
-  res.status(500).send({ message: 'Error' });
+  const appError = err instanceof AppError ? err : internalServerError('На сервере произошла ошибка');
+  res
+    .status(appError.statusCode)
+    .send({ message: appError.message });
+
 });
 
 app.listen(PORT, () => {
