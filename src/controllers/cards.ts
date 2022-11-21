@@ -5,7 +5,6 @@ import { badRequestError, notFoundError } from '../errors';
 import card from '../models/card';
 
 export function getAllCards(req: Request, res: Response, next: NextFunction) {
-  console.log('cards');
   card.find({})
     .then((cards) => res.send(cards))
     .catch(next);
