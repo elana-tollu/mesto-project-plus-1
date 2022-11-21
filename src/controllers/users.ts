@@ -34,23 +34,37 @@ export function getUserById(req: Request, res: Response, next: NextFunction) {
 }
 
 export function editUser(req: Request, res: Response, next: NextFunction) {
-  user.findByIdAndUpdate(req.user._id, req.body, { new: true })
+  user.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((theUser) => {
       if (theUser === null) {
         throw notFoundError('Пользователь не найден');
       }
       res.json(theUser);
     })
-    .catch(next);
+    .catch((err: Error) => {
+      const error = err instanceof mongoose.Error.ValidationError
+        ? badRequestError(err.message)
+        : err;
+      next(error);
+    });
 }
 
 export function editAvatar(req: Request, res: Response, next: NextFunction) {
-  user.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true })
+  user.findByIdAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    { new: true, runValidators: true },
+  )
     .then((theUser) => {
       if (theUser === null) {
         throw notFoundError('Пользователь не найден');
       }
       res.json(theUser);
     })
-    .catch(next);
+    .catch((err: Error) => {
+      const error = err instanceof mongoose.Error.ValidationError
+        ? badRequestError(err.message)
+        : err;
+      next(error);
+    });
 }

@@ -21,6 +21,11 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator(v: string): boolean {
+        return !!new URL(v);
+      },
+    },
     required: true,
   },
 });

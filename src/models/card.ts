@@ -1,4 +1,5 @@
 import { Schema, model, Types } from 'mongoose';
+import { URL } from 'node:url';
 
 interface ICard {
   name: string;
@@ -17,6 +18,11 @@ const cardSchema = new Schema({
   },
   link: {
     type: String,
+    validate: {
+      validator(v: string): boolean {
+        return !!new URL(v);
+      },
+    },
     required: true,
   },
   owner: {
