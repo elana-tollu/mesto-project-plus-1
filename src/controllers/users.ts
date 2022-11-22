@@ -68,3 +68,14 @@ export function editAvatar(req: Request, res: Response, next: NextFunction) {
       next(error);
     });
 }
+
+/*
+function handleErrors(next: NextFunction) {
+  return (err: Error) => {
+    const error = err instanceof mongoose.Error.ValidationError
+      ? badRequestError(err.message)
+      : err;
+    next(error);
+  };
+}
+*/

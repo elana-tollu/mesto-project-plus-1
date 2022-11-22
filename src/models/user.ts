@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import isEmail from 'validator/lib/isEmail';
 
 interface IUser {
   name: string;
@@ -27,6 +28,15 @@ const userSchema = new Schema({
       },
     },
     required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    validate: {
+      validator(v: string): boolean {
+        return isEmail(v);
+      },
+    },
   },
 });
 
