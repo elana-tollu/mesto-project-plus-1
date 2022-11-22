@@ -32,6 +32,7 @@ const userSchema = new Schema({
   email: {
     type: String,
     required: true,
+    unique: true,
     validate: {
       validator(v: string): boolean {
         return isEmail(v);
@@ -40,4 +41,8 @@ const userSchema = new Schema({
   },
 });
 
-export default model<IUser>('user', userSchema);
+const user = model<IUser>('user', userSchema);
+
+user.ensureIndexes();
+
+export default user;

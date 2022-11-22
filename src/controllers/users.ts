@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { badRequestError, notFoundError } from '../errors';
+import { badRequestError, conflictError, notFoundError } from '../errors';
 import user from '../models/user';
 
 export function getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -15,9 +15,14 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
       res.json(createdUser);
     })
     .catch((err: Error) => {
-      const error = err instanceof mongoose.Error.ValidationError
-        ? badRequestError(err.message)
-        : err;
+      let error = err;
+      if (err instanceof mongoose.Error.ValidationError) {
+        error = badRequestError(err.message);
+      }
+      if (err instanceof mongoose.mongo.MongoServerError && err.code === 11000) {
+        error = conflictError(err.message);
+      }
+
       next(error);
     });
 }
