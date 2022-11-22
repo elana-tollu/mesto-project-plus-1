@@ -1,10 +1,12 @@
 import { Schema, model } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
 
-interface IUser {
+export interface IUser {
   name: string;
   about: string;
   avatar: string;
+  email: string;
+  password?: string;
 }
 
 const userSchema = new Schema({
@@ -39,10 +41,13 @@ const userSchema = new Schema({
       },
     },
   },
+  password: {
+    type: String,
+    required: true,
+    select: false,
+  },
 });
 
-const user = model<IUser>('user', userSchema);
+export const User = model<IUser>('user', userSchema);
 
-user.ensureIndexes();
-
-export default user;
+User.ensureIndexes();

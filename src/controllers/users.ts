@@ -1,17 +1,22 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import { hash } from 'bcrypt';
 import { badRequestError, conflictError, notFoundError } from '../errors';
-import user from '../models/user';
+import { IUser, User } from '../models/user';
 
 export function getAllUsers(req: Request, res: Response, next: NextFunction) {
-  user.find({})
+  User.find({})
     .then((users) => res.send(users))
     .catch(next);
 }
 
 export function createUser(req: Request, res: Response, next: NextFunction) {
-  user.create(req.body)
-    .then((createdUser) => {
+  const signupRequest = req.body;
+  hash(signupRequest.password, 10)
+    .then((passwordHash: string) => User.create({
+      ...signupRequest, password: passwordHash,
+    }))
+    .then((createdUser: IUser) => {
       res.json(createdUser);
     })
     .catch((err: Error) => {
@@ -28,7 +33,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getUserById(req: Request, res: Response, next: NextFunction) {
-  user.findById(req.params.userId)
+  User.findById(req.params.userId)
     .then((theUser) => {
       if (theUser === null) {
         throw notFoundError('Пользователь не найден');
@@ -39,7 +44,7 @@ export function getUserById(req: Request, res: Response, next: NextFunction) {
 }
 
 export function editUser(req: Request, res: Response, next: NextFunction) {
-  user.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((theUser) => {
       if (theUser === null) {
         throw notFoundError('Пользователь не найден');
@@ -55,7 +60,7 @@ export function editUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function editAvatar(req: Request, res: Response, next: NextFunction) {
-  user.findByIdAndUpdate(
+  User.findByIdAndUpdate(
     req.user._id,
     { avatar: req.body.avatar },
     { new: true, runValidators: true },
