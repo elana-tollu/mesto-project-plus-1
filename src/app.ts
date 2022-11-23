@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
+import authRoutes from './routes/auth';
 import { AppError, internalServerError } from './errors';
 
 declare global{
@@ -34,6 +35,8 @@ app.get('/', (req, res) => {
 app.use('/cards', cardsRoutes);
 
 app.use('/users', usersRoutes);
+
+app.use('/', authRoutes);
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
