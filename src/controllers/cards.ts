@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { badRequestError, notFoundError } from '../errors';
+import { badRequestError, forbiddenError, notFoundError } from '../errors';
 
-import card from '../models/card';
+import card, { ICard } from '../models/card';
 
 export function getAllCards(req: Request, res: Response, next: NextFunction) {
   card.find({})
@@ -50,13 +50,26 @@ export function deleteCardsLike(req: Request, res: Response, next: NextFunction)
 }
 
 export function deleteCard(req: Request, res: Response, next: NextFunction) {
-  card.deleteOne({ _id: req.params.cardId })
-    .then((deleteResult) => {
-      if (deleteResult.deletedCount === 1) {
-        res.status(200).end();
-      } else {
-        throw notFoundError('Карточка не найдена');
+  getCardById(req.params.cardId)
+    .then((theCard) => {
+      if (!theCard.owner.equals(req.user._id)) {
+        throw forbiddenError('Вы не можете удалить чужую карточку');
       }
+      return theCard;
+    })
+    .then((theCard) => card.deleteOne({ _id: theCard._id }))
+    .then(() => {
+      res.status(200).end();
     })
     .catch(next);
+}
+
+function getCardById(cardId: string): Promise<ICard> {
+  return card.findById(cardId)
+    .then((theCard) => {
+      if (theCard === null) {
+        throw notFoundError('Карточка не найдена');
+      }
+      return theCard;
+    });
 }

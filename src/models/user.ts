@@ -1,7 +1,8 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, ObjectId } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
 
 export interface IUser {
+  _id: ObjectId;
   name: string;
   about: string;
   avatar: string;
