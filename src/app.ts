@@ -6,6 +6,7 @@ import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
 import authRoutes from './routes/auth';
 import { AppError, internalServerError } from './errors';
+import { requestLogger, errorLogger } from './middlewares/logger';
 
 declare global{
   namespace Express {
@@ -17,6 +18,8 @@ declare global{
 
 const { PORT = 3000 } = process.env;
 const app = express();
+
+app.use(requestLogger);
 app.use(cookieParser());
 app.use(express.json());
 
@@ -32,6 +35,7 @@ app.use('/users', usersRoutes);
 
 app.use('/', authRoutes);
 
+app.use(errorLogger);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
   const appError = err instanceof AppError ? err : internalServerError('На сервере произошла ошибка');
