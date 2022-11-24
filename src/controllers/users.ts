@@ -32,15 +32,30 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
     });
 }
 
-export function getUserById(req: Request, res: Response, next: NextFunction) {
-  User.findById(req.params.userId)
+export function getUser(req: Request, res: Response, next: NextFunction) {
+  getUserById(req.params.userId)
+    .then((theUser) => {
+      res.json(theUser);
+    })
+    .catch(next);
+}
+
+export function getMe(req: Request, res: Response, next: NextFunction) {
+  getUserById(req.user._id)
+    .then((theUser) => {
+      res.json(theUser);
+    })
+    .catch(next);
+}
+
+function getUserById(userId: string): Promise<IUser> {
+  return User.findById(userId)
     .then((theUser) => {
       if (theUser === null) {
         throw notFoundError('Пользователь не найден');
       }
-      res.json(theUser);
-    })
-    .catch(next);
+      return theUser;
+    });
 }
 
 export function editUser(req: Request, res: Response, next: NextFunction) {

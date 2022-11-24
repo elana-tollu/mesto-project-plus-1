@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middlewares/auth';
 
 import {
-  editAvatar, editUser, getAllUsers, getUserById,
+  editAvatar, editUser, getAllUsers, getMe, getUser,
 } from '../controllers/users';
 
 const router = Router();
@@ -13,7 +13,9 @@ router.patch('/me/avatar', editAvatar);
 
 router.patch('/me', editUser);
 
-router.get('/:userId', getUserById);
+router.get('/me', getMe);
+
+router.get('/:userId', getUser);
 
 router.get('/', getAllUsers);
 

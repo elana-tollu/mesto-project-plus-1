@@ -22,15 +22,13 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 function extractUser(req: Request): ({ _id: string } | null) {
   const encodedJwt = req.cookies.auth;
   if (!encodedJwt) {
-    console.log('jwt:', encodedJwt);
     return null;
   }
   const jwt = jose.UnsecuredJWT.decode(encodedJwt) as any;
   if (!jwt?.payload._id) {
-    console.log('jwt:', jwt);
     return null;
   }
   return {
-    _id: jwt._id,
+    _id: jwt.payload._id,
   };
 }
