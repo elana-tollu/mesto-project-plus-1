@@ -20,13 +20,6 @@ const app = express();
 app.use(cookieParser());
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63683b3bc09c57e6b17e6d45',
-  };
-  next();
-});
-
 mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
 
 app.get('/', (req, res) => {
@@ -45,7 +38,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   res
     .status(appError.statusCode)
     .send({ message: appError.message });
-
 });
 
 app.listen(PORT, () => {
