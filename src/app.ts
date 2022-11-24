@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 
 import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
@@ -16,7 +17,7 @@ declare global{
 
 const { PORT = 3000 } = process.env;
 const app = express();
-
+app.use(cookieParser());
 app.use(express.json());
 
 app.use((req, res, next) => {

@@ -14,7 +14,6 @@ export function signin(req: Request, res: Response, next: NextFunction) {
       if (theUser === null) {
         throw unauthorizedError('Доступ запрещен');
       }
-      console.log('loginRequest.password:', loginRequest.password);
       return compare(loginRequest.password, theUser.password)
         .then((result) => {
           if (!result) {
@@ -25,7 +24,6 @@ export function signin(req: Request, res: Response, next: NextFunction) {
             .setExpirationTime('7d')
             .encode();
 
-          console.log('jwt:', jwt);
           res.cookie('auth', jwt, { httpOnly: true });
           res.end();
         });
