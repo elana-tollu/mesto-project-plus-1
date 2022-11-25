@@ -33,7 +33,7 @@ export function createUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getUser(req: Request, res: Response, next: NextFunction) {
-  getUserById(req.params.userId)
+  findUser(req.params.userId)
     .then((theUser) => {
       res.json(theUser);
     })
@@ -41,14 +41,14 @@ export function getUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function getMe(req: Request, res: Response, next: NextFunction) {
-  getUserById(req.user._id)
+  findUser(req.user._id)
     .then((theUser) => {
       res.json(theUser);
     })
     .catch(next);
 }
 
-function getUserById(userId: string): Promise<IUser> {
+function findUser(userId: string): Promise<IUser> {
   return User.findById(userId)
     .then((theUser) => {
       if (theUser === null) {
@@ -61,11 +61,8 @@ function getUserById(userId: string): Promise<IUser> {
 export function editUser(req: Request, res: Response, next: NextFunction) {
   // Этот контроллер обновляет текущего аутентифицированного пользователя (/users/me),
   // поэтому проверка доступа не требуется
-  User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
+  updateUser(req.user._id, req.body)
     .then((theUser) => {
-      if (theUser === null) {
-        throw notFoundError('Пользователь не найден');
-      }
       res.json(theUser);
     })
     .catch((err: Error) => {
@@ -79,15 +76,8 @@ export function editUser(req: Request, res: Response, next: NextFunction) {
 export function editAvatar(req: Request, res: Response, next: NextFunction) {
   // Этот контроллер обновляет аватар текущего аутентифицированного пользователя (/users/me/avatar),
   // поэтому проверка доступа не требуется
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar: req.body.avatar },
-    { new: true, runValidators: true },
-  )
+  updateUser(req.user._id, { avatar: req.body.avatar })
     .then((theUser) => {
-      if (theUser === null) {
-        throw notFoundError('Пользователь не найден');
-      }
       res.json(theUser);
     })
     .catch((err: Error) => {
@@ -98,13 +88,12 @@ export function editAvatar(req: Request, res: Response, next: NextFunction) {
     });
 }
 
-/*
-function handleErrors(next: NextFunction) {
-  return (err: Error) => {
-    const error = err instanceof mongoose.Error.ValidationError
-      ? badRequestError(err.message)
-      : err;
-    next(error);
-  };
+function updateUser(userId: string, fieldsToUpdate: Partial<IUser>): Promise<IUser> {
+  return User.findByIdAndUpdate(userId, fieldsToUpdate, { new: true, runValidators: true })
+    .then((theUser) => {
+      if (theUser === null) {
+        throw notFoundError('Пользователь не найден');
+      }
+      return theUser;
+    });
 }
-*/
