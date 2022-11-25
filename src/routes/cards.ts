@@ -1,14 +1,11 @@
 import { Router } from 'express';
 import { celebrate, Joi } from 'celebrate';
-import { authenticate } from '../middlewares/auth';
 
 import {
   addCardsLike, addCard, deleteCard, deleteCardsLike, getAllCards,
 } from '../controllers/cards';
 
 const router = Router();
-
-router.use(authenticate);
 
 router.put('/:cardId/likes', addCardsLike);
 

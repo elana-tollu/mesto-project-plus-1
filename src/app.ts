@@ -1,12 +1,14 @@
 import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-import { errors } from 'celebrate';
+import { errors, celebrate, Joi } from 'celebrate';
+import { createUser } from './controllers/users';
+import { signin } from './controllers/auth';
 import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
-import authRoutes from './routes/auth';
 import { AppError, internalServerError } from './errors';
 import { requestLogger, errorLogger } from './middlewares/logger';
+import { authenticate } from './middlewares/auth';
 
 declare global{
   namespace Express {
@@ -23,17 +25,25 @@ app.use(requestLogger);
 app.use(cookieParser());
 app.use(express.json());
 
-mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+  }),
+}), signin);
 
-app.get('/', (req, res) => {
-  res.send('Hello, Darling!');
-});
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+}), createUser);
+
+app.use(authenticate);
 
 app.use('/cards', cardsRoutes);
 
 app.use('/users', usersRoutes);
-
-app.use('/', authRoutes);
 
 app.use(errorLogger);
 
@@ -45,6 +55,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     .status(appError.statusCode)
     .send({ message: appError.message });
 });
+
+mongoose.connect('mongodb://mesto_user:mesto_password@localhost:27017/mestodb');
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

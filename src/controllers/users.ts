@@ -59,6 +59,8 @@ function getUserById(userId: string): Promise<IUser> {
 }
 
 export function editUser(req: Request, res: Response, next: NextFunction) {
+  // Этот контроллер обновляет текущего аутентифицированного пользователя (/users/me),
+  // поэтому проверка доступа не требуется
   User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((theUser) => {
       if (theUser === null) {
@@ -75,6 +77,8 @@ export function editUser(req: Request, res: Response, next: NextFunction) {
 }
 
 export function editAvatar(req: Request, res: Response, next: NextFunction) {
+  // Этот контроллер обновляет аватар текущего аутентифицированного пользователя (/users/me/avatar),
+  // поэтому проверка доступа не требуется
   User.findByIdAndUpdate(
     req.user._id,
     { avatar: req.body.avatar },
