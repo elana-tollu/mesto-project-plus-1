@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-
+import { errors } from 'celebrate';
 import usersRoutes from './routes/users';
 import cardsRoutes from './routes/cards';
 import authRoutes from './routes/auth';
@@ -36,8 +36,10 @@ app.use('/users', usersRoutes);
 app.use('/', authRoutes);
 
 app.use(errorLogger);
+
+app.use(errors());
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
   const appError = err instanceof AppError ? err : internalServerError('На сервере произошла ошибка');
   res
     .status(appError.statusCode)
